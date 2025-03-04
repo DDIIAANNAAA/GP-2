@@ -8,7 +8,7 @@ import time
 driver = webdriver.Chrome()
 chrome_options = Options()
 books = []
-
+# URL первой страницы с фантастикой
 with open('genres', 'r', encoding='UTF-8') as f:
     genres = f.read().split(';')
 print(genres)
@@ -20,48 +20,49 @@ for i in genres:
 
     soup = BeautifulSoup(driver.page_source, "html.parser")
 
+    # Находим все книги на странице
     book_items = soup.find_all("li", class_="book-item__item")
 
 
     for book in book_items:
         try:
-            
+            # Название книги
             title_tag = book.find("a", class_="book-item__title")
             title = title_tag.text.strip() if title_tag else "Не найдено"
 
-            
+            # Автор книги
             author_tag = book.find("a", class_="book-item__author")
             author = author_tag.text.strip() if author_tag else "Не найдено"
 
-            
+            # Рейтинг книги
             rating_tag = book.find("div", class_="book-item__rating")
             rating = rating_tag.text.strip() if rating_tag else "Не найдено"
 
-           
+            # ISBN
             isbn_tag = book.find("td", class_="book-item-edition__col1", text="ISBN:")
             isbn = isbn_tag.find_next_sibling("td").text.strip() if isbn_tag else "Не найдено"
 
-     
+            # Год издания
             year_tag = book.find("td", class_="book-item-edition__col1", text="Год издания:")
             year = year_tag.find_next_sibling("td").text.strip() if year_tag else "Не найдено"
 
-      
+            # Издательство
             publisher_tag = book.find("td", class_="book-item-edition__col1", text="Издательство:")
             publisher = publisher_tag.find_next_sibling("td").text.strip() if publisher_tag else "Не найдено"
 
-         
+            # Количество прочитавших
             readers_tag = book.find("a", class_="icon-added-grey")
             readers = readers_tag.text.strip() if readers_tag else "Не найдено"
 
-   
+            # Количество рецензий
             reviews_tag = book.find("a", class_="icon-review-grey")
             reviews = reviews_tag.text.strip() if reviews_tag else "Не найдено"
 
-
+            # Описание книги
             description_tag = book.find("div", class_="book-item__text")
             description = description_tag.text.strip() if description_tag else "Не найдено"
 
-
+            # Добавляем данные в список
             books.append({
                 "Название": title,
                 "Автор": author,
@@ -71,13 +72,14 @@ for i in genres:
                 "Издательство": publisher,
                 "Прочитали": readers,
                 "Рецензии": reviews,
-                "Описание": description
+                "Описание": description,
+                'Жанр': i
             })
         except Exception as e:
             print(f"Ошибка при обработке книги на жанре {i}: {e}")
     print(f"Спарсили {len(book_items)} книг с жанра {i}")
 
 
-
+# Создаём DataFrame
 df = pd.DataFrame(books)
 df.to_csv('books.csv')
